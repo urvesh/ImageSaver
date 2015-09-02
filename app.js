@@ -28,6 +28,8 @@ app.use(express.static(path.join(__dirname, 'uploads')));
 app.use('/', routes);
 app.use('/users', users);
 app.get('/uploads', controllers.index);
+app.get('/search', controllers.search);
+app.get('/searchAlbum', controllers.searchAlbum);
 
 app.post('/uploads/images/', multer({ storage: controllers.storage}).array('images'), controllers.postUpload);
 

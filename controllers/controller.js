@@ -50,6 +50,31 @@ exports.postUpload = function(req, res, next) {
         })
     }
 
-    res.send('Upload complete');
+    res.redirect('/search');
 };
 
+exports.search = function(req, res, next) {
+    res.render('search');
+};
+
+exports.searchAlbum = function(req, res, next) {
+    console.log(req.query);
+    if (req.query.album) {
+        fs.readdir('./uploads/' + req.query.album, function(err, files) {
+
+            if (err) {
+                console.log(err);
+                res.send('This album doesn\'t exists');
+            } else {
+                console.log(files);
+
+                res.render('images', {
+                    album: req.query.album,
+                    images: files
+                })
+            }
+        });
+    } else {
+        res.send("This parameter doesn't exist");
+    }
+};

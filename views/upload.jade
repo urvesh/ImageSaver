@@ -1,3 +1,16 @@
 //
    Created by Urvesh on 8/19/15.
 
+extends layout
+
+block content
+    form(action='/uploads/images/', method='post', enctype='multipart/form-data')
+        label
+            | Select the images to upload:
+            input(type='file', name='images', multiple)
+        hr
+        label
+            | What would you like to call this album?
+            input(type='text', name='albumName')
+        hr
+        input(type='submit')

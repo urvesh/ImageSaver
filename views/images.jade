@@ -1,3 +1,9 @@
 //
    Created by Urvesh on 8/25/15.
 
+extends layout
+
+block pictures
+    p album name is: #{album}
+    each val in images
+        img(src=album + '/' + val)
