@@ -4,6 +4,9 @@
 
 var multer = require('multer');
 var fs = require('fs');
+var gm = require('gm');
+var async = require('async');
+
 
 exports.index = function(req, res, next) {
     res.render('upload');
@@ -40,16 +43,38 @@ exports.postUpload = function(req, res, next) {
             }
         });
 
-        req.files.forEach(function(image) {
+        async.eachLimit(req.files, 10, function(image, callback) {
             var oldPath = image.destination + image.originalname,
                 newPath = path + image.originalname;
 
-            fs.rename(oldPath, newPath);
-            filePathArray.push(req.body.albumName + '/' + image.originalname);
-            console.log('moved', oldPath, 'to', newPath);
-        })
+            //fs.rename(oldPath, newPath);
+            //filePathArray.push(req.body.albumName + '/' + image.originalname);
+            //console.log('moved', oldPath, 'to', newPath);
+            //console.log(image.originalname);
+            var imageSize = {};
+            gm(oldPath)
+                .size(function (err, size) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        console.log(newPath, '-> Size:', size);
+                        imageSize = size;
+                    }
+                })
+                .resize(imageSize.width * 0.5, imageSize.height * 0.5)
+                .write(newPath, function (err) {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        filePathArray.push(req.body.albumName + '/' + image.originalname);
+                        //console.log('resized from', oldPath, 'to', newPath);
+                        //console.log(image.originalname);
+                        //console.log('resized');
+                        callback()
+                    }
+                })
+        });
     }
-
     res.redirect('/search');
 };
 
