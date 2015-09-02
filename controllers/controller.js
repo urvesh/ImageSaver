@@ -18,18 +18,12 @@ exports.storage = multer.diskStorage({
         cb(null, './uploads/tmp/');
     },
     filename: function(req, file, cb) {
-        //console.log(file);
         cb(null, file.originalname);
     }
 });
 
 exports.postUpload = function(req, res, next) {
-    //console.log(req.files);
-    //console.log(req.body);
-
-    var filePathArray = [];
     if (req.body.albumName) {
-        console.log('there is a name');
         var path = './uploads/' + req.body.albumName + '/';
         fs.mkdir(path, function(err) {
             if (err) {
@@ -47,10 +41,6 @@ exports.postUpload = function(req, res, next) {
             var oldPath = image.destination + image.originalname,
                 newPath = path + image.originalname;
 
-            //fs.rename(oldPath, newPath);
-            //filePathArray.push(req.body.albumName + '/' + image.originalname);
-            //console.log('moved', oldPath, 'to', newPath);
-            //console.log(image.originalname);
             var imageSize = {};
             gm(oldPath)
                 .size(function (err, size) {
@@ -66,10 +56,8 @@ exports.postUpload = function(req, res, next) {
                     if (err) {
                         console.log(err)
                     } else {
-                        filePathArray.push(req.body.albumName + '/' + image.originalname);
-                        //console.log('resized from', oldPath, 'to', newPath);
-                        //console.log(image.originalname);
-                        //console.log('resized');
+                        fs.unlink(oldPath); //removes old file from tmp folder
+                        console.log('resized image...');
                         callback()
                     }
                 })
@@ -83,7 +71,6 @@ exports.search = function(req, res, next) {
 };
 
 exports.searchAlbum = function(req, res, next) {
-    console.log(req.query);
     if (req.query.album) {
         fs.readdir('./uploads/' + req.query.album, function(err, files) {
 
@@ -91,8 +78,6 @@ exports.searchAlbum = function(req, res, next) {
                 console.log(err);
                 res.send('This album doesn\'t exists');
             } else {
-                console.log(files);
-
                 res.render('images', {
                     album: req.query.album,
                     images: files
